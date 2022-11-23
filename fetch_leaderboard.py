@@ -20,9 +20,11 @@ def get_leaderboard():
     scores = {}
     for div in divs:
         name = div.find("p", class_='lbd-score__name').getText().strip().replace(' (you)', '')
-        time = div.find("p", class_='lbd-score__time').getText()
-        if time != '--':
-            scores[name] = time
+        time_div = div.find("p", class_='lbd-score__time')
+        if time_div:
+            time = time_div.getText()
+            if time != '--':
+                scores[name] = time
     return scores
 
 parser = argparse.ArgumentParser(description='Fetch NYT Crossword Mini Leaderboard')
