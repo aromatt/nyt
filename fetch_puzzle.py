@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import argparse
+import datetime
 import json
 import os
 import sys
+import time
 
 import requests
 from bs4 import BeautifulSoup
@@ -12,6 +14,15 @@ PUZZLE_BASE_URL = 'https://www.nytimes.com/svc/crosswords/v6/puzzle/mini'
 
 if 'NYT_COOKIE' not in os.environ:
     raise Exception('Set env var NYT_COOKIE to your "NYT-S" cookie.')
+
+
+def date_generator(start_date: str) -> str:
+    start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+    current_date = datetime.datetime.now()
+    next_date = start_date
+    while next_date <= current_date:
+        yield next_date.strftime('%Y-%m-%d')
+        next_date += datetime.timedelta(days=1)
 
 
 def get_puzzle(date_str):
@@ -32,6 +43,8 @@ def extract_clues(puzzle):
     return out
 
 
-puzzle = get_puzzle(sys.argv[1])
-clues = extract_clues(puzzle)
-print(json.dumps(clues))
+for date in date_generator(sys.argv[1]):
+    puzzle = get_puzzle(date)
+    clues = extract_clues(puzzle)
+    print(json.dumps({'date': date, 'clues': clues}))
+    time.sleep(1)
